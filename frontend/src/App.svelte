@@ -11,7 +11,7 @@
 <style lang="scss">
   .nav-container {
     position: fixed;
-    z-index: 100;
+    z-index: 1000;
     background-color: #fff;
   }
   .main-container {
