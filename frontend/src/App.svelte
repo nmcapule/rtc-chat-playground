@@ -3,6 +3,11 @@
 
   export let name: string;
 
+  function handleMessage(event) {
+    console.log(event.detail);
+    name = `click ${event.detail.clicks}`;
+  }
+
   $: object = {
     thing: `the powah is in yo <strong>hands</strong>!`,
     name: name,
@@ -42,5 +47,5 @@
     <a href="https://svelte.dev/tutorial">Svelte tutorial</a>
     to learn how to build Svelte apps.
   </p>
-  <Playground {...object} />
+  <Playground {...object} on:message={handleMessage} />
 </main>

@@ -1,6 +1,11 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+  import { time } from './stores';
+
   export let thing = `oh no <strong>!!!!</strong>`;
   export let name: string;
+
+  const dispatch = createEventDispatcher();
 
   let clicks = 0;
   let trapHistory = [];
@@ -15,6 +20,8 @@
   function handleClick() {
     clicks += 1;
     promise = until2secs();
+
+    dispatch('message', { text: 'Hello', clicks });
   }
 
   $: trap = clicks / 2;
@@ -44,7 +51,12 @@
 </style>
 
 <div>
-  <button on:click={handleClick}>Click me pls {name}: x{clicks}/{trap}</button>
+  <button on:click={handleClick}>{$time} Click me pls {name}: x{clicks}/{trap}</button>
+  <input
+    type="range"
+    bind:value={clicks}
+    min="0"
+    max={clicks + 100 * Math.floor(1 + clicks / 100)} />
   {#await promise}
     <p>waiting for promise</p>
   {:then randomnumber}
