@@ -1,26 +1,19 @@
 <script lang="ts">
   import L from 'leaflet';
   import { onMount } from 'svelte';
+  import { GREETINGS } from './greetings';
+
   import CustomPopup from './CustomPopup.svelte';
 
   let time = new Date();
   let map: L.Map;
 
   onMount(() => {
-    const interval = setInterval(generatePopup, 1000);
+    const interval = setInterval(generatePopup, 400);
     return () => clearInterval(interval);
   });
 
-  const messages = [
-    'hello',
-    'hi',
-    'oh hello from over here',
-    "what's up madlang people",
-    "who's there?",
-    'ola',
-    'merry christmasssss',
-    'beep boop',
-  ];
+  const messages = GREETINGS;
   function generatePopup() {
     if (map) {
       const popup = L.popup({
@@ -31,7 +24,7 @@
       });
 
       const lat = Math.random() * 180 - 90;
-      const lng = Math.random() * 180 - 90;
+      const lng = Math.random() * 360 - 180;
 
       popup.setLatLng([lat, lng]);
       const popupDOM = L.DomUtil.create('div');
@@ -55,13 +48,14 @@
   }
 
   function createMap(container: HTMLElement) {
-    const created = L.map(container, { preferCanvas: true }).setView([30, 0], 2.5);
+    const created = L.map(container, { preferCanvas: true }).setView([30, 0], 2);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: `
       &copy;<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>,
 	    &copy;<a href="https://carto.com/attributions" target="_blank">CARTO</a>`,
       subdomains: 'abcd',
       maxZoom: 14,
+      minZoom: 2,
     }).addTo(created);
     return created;
   }

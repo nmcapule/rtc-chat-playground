@@ -10,4 +10,6 @@
   }
 </style>
 
-<div class="popup-container">{message}</div>
+<div class="popup-container">
+  <marquee>{message}</marquee>
+</div>
