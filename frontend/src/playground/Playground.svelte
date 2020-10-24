@@ -13,6 +13,15 @@
   $: console.log(`hell naw it's a ${trapHistory}`);
 </script>
 
+<style type="text/scss">
+  div {
+    > button {
+      color: red;
+      background-color: yellow;
+    }
+  }
+</style>
+
 <div>
   <button on:click={handleClick}>Click me pls x{clicks}/{trap}</button>
   <div>
