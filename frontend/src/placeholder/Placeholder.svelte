@@ -2,7 +2,7 @@
   export let message = 'Hello world';
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   .placeholder-container {
     min-height: 25em;
 

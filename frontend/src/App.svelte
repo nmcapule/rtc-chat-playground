@@ -1,19 +1,36 @@
-<script>
+<script lang="ts">
   import { Router, Link, Route } from 'svelte-routing';
 
   import Placeholder from './placeholder/Placeholder.svelte';
   import Playground from './playground/Entry.svelte';
+  import Leaflet from './leaflet/Leaflet.svelte';
 
   export let url = '';
 </script>
 
+<style lang="scss">
+  .nav-container {
+    position: fixed;
+    z-index: 100;
+    background-color: #fff;
+  }
+  .main-container {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
 <Router {url}>
-  <nav>
+  <nav class="nav-container">
     <Link to="/">Home</Link>
     <Link to="/placeholder">Placeholder</Link>
     <Link to="/playground">Playground</Link>
+    <Link to="/leaflet">Leaflet</Link>
   </nav>
-  <div>
+  <div class="main-container">
+    <Route path="/leaflet">
+      <Leaflet />
+    </Route>
     <Route path="/playground">
       <Playground />
     </Route>

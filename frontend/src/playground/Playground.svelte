@@ -34,7 +34,7 @@
   $: console.log(`hell naw it's a ${trapHistory}`);
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   div {
     > button {
       color: red;
