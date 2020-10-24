@@ -33,5 +33,5 @@
     <a href="https://svelte.dev/tutorial">Svelte tutorial</a>
     to learn how to build Svelte apps.
   </p>
-  <Playground />
+  <Playground thing="the powah is in yo <strong>hands</strong>!" />
 </main>
