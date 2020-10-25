@@ -4,12 +4,13 @@
 
 <style lang="scss">
   .popup-container {
-    background-color: white;
-    width: 10em;
-    color: green;
+    background-color: black;
+    padding: 0.2em;
+    color: white;
+    text-align: left;
   }
 </style>
 
-<div class="popup-container">
-  <marquee>{message}</marquee>
-</div>
+<pre class="popup-container">
+  {@html message}
+</pre>

@@ -15,7 +15,7 @@
   });
 
   const messages = GREETINGS;
-  function generatePopup() {
+  function generatePopup(message?: string, position?: Position) {
     if (map) {
       const popup = L.popup({
         closeButton: false,
@@ -24,8 +24,8 @@
         className: 'custom-leaflet-popup',
       });
 
-      const lat = Math.random() * 180 - 90;
-      const lng = Math.random() * 360 - 180;
+      const lat = position?.coords?.latitude || Math.random() * 180 - 90;
+      const lng = position?.coords?.longitude || Math.random() * 360 - 180;
 
       popup.setLatLng([lat, lng]);
       const popupDOM = L.DomUtil.create('div');
@@ -34,10 +34,9 @@
 
       const popupComponent = new CustomPopup({
         target: popup.getElement(),
-      });
-      // Bit of a hack, since it's not working in the initializer.
-      popupComponent.$set({
-        message: messages[Math.floor(Math.random() * messages.length)],
+        props: {
+          message: message || messages[Math.floor(Math.random() * messages.length)],
+        },
       });
 
       setTimeout(() => {
@@ -76,6 +75,16 @@
   }
   function resizeMap() {
     map?.invalidateSize();
+  }
+
+  function handleLocate(event) {
+    console.log(event.detail);
+    generatePopup(JSON.stringify(event.detail, null, 2), event.detail);
+
+    map?.setView([event.detail.coords.latitude, event.detail.coords.longitude], 10, {
+      animate: true,
+      duration: 1000,
+    });
   }
 </script>
 
@@ -119,7 +128,7 @@
 
 <div class="overlay row justify-content-end align-items-end">
   <div class="catch-pointer">
-    <Chatbox />
+    <Chatbox on:locate={handleLocate} />
   </div>
 </div>
 <div class="map-container" use:actionMap />

@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
   let message = 'Ola';
 
   async function locateUser() {
@@ -6,6 +10,7 @@
     try {
       const position = await requestCurrentPosition();
       message = JSON.stringify(position, null, 2);
+      dispatch('locate', position);
     } catch (error) {
       message = error.message;
     }
@@ -43,6 +48,7 @@
     width: 30em;
   }
 
+  /** Allow word wrap in code blocks.*/
   code {
     white-space: pre-wrap; /* Since CSS 2.1 */
     white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
