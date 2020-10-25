@@ -1,4 +1,4 @@
-# heywisp.io
+# RTC Chat
 
 ## Development
 
