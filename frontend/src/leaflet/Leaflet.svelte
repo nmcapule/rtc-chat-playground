@@ -3,13 +3,14 @@
   import { onMount } from 'svelte';
   import { GREETINGS } from './greetings';
 
+  import Chatbox from './Chatbox.svelte';
   import CustomPopup from './CustomPopup.svelte';
 
   let time = new Date();
   let map: L.Map;
 
   onMount(() => {
-    const interval = setInterval(generatePopup, 400);
+    const interval = setInterval(generatePopup, 100);
     return () => clearInterval(interval);
   });
 
@@ -48,7 +49,11 @@
   }
 
   function createMap(container: HTMLElement) {
-    const created = L.map(container, { preferCanvas: true }).setView([30, 0], 2);
+    const created = L.map(container, {
+      preferCanvas: true,
+      maxBounds: new L.LatLngBounds([90, -180], [-90, 180]),
+    }).setView([30, 0], 2);
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: `
       &copy;<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>,
@@ -57,6 +62,7 @@
       maxZoom: 14,
       minZoom: 2,
     }).addTo(created);
+
     return created;
   }
   function actionMap(container: HTMLElement) {
@@ -75,8 +81,20 @@
 
 <style lang="scss">
   .map-container {
-    height: 100%;
     width: 100%;
+    height: 100%;
+  }
+  .overlay {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 2000;
+
+    > .catch-pointer {
+      pointer-events: all;
+    }
   }
 </style>
 
@@ -99,4 +117,9 @@
   </style>
 </svelte:head>
 
-<div class="map-container" use:actionMap>Leaflet placeholder</div>
+<div class="overlay row justify-content-end align-items-end">
+  <div class="catch-pointer">
+    <Chatbox />
+  </div>
+</div>
+<div class="map-container" use:actionMap />
