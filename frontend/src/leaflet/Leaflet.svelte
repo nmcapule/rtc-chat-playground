@@ -47,11 +47,16 @@
     }
   }
 
+  function resetMapView(map: L.Map) {
+    map?.setView([30, 0], 2);
+  }
   function createMap(container: HTMLElement) {
     const created = L.map(container, {
       preferCanvas: true,
       maxBounds: new L.LatLngBounds([90, -180], [-90, 180]),
-    }).setView([30, 0], 2);
+    });
+
+    resetMapView(created);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: `
@@ -85,6 +90,8 @@
       animate: true,
       duration: 1000,
     });
+
+    setTimeout(() => resetMapView(map), 5000);
   }
 </script>
 
