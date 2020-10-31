@@ -4,6 +4,7 @@
   import Placeholder from './placeholder/Placeholder.svelte';
   import Playground from './playground/Entry.svelte';
   import Leaflet from './leaflet/Leaflet.svelte';
+  import Socket from './socket/Socket.svelte';
 
   export let url = '';
 </script>
@@ -11,6 +12,7 @@
 <style lang="scss">
   .nav-container {
     position: fixed;
+    right: 0;
     z-index: 1000;
     background-color: #fff;
   }
@@ -32,15 +34,15 @@
   <nav class="nav-container">
     <Link to="/">Home</Link>
     <Link to="/placeholder">Placeholder</Link>
-    <Link to="/playground">Playground</Link>
+    <Link to="/socket">Socket</Link>
     <Link to="/leaflet">Leaflet</Link>
   </nav>
   <div class="main-container">
     <Route path="/leaflet">
       <Leaflet />
     </Route>
-    <Route path="/playground">
-      <Playground />
+    <Route path="/socket">
+      <Socket />
     </Route>
     <Route path="/placeholder">
       <Placeholder />
