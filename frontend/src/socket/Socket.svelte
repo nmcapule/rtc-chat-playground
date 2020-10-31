@@ -1,5 +1,29 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import io from 'socket.io-client';
+
   let users = ['hey', 'get', ' your ', 'game', 'on'];
+
+  onMount(() => {
+    const socket = io('http://localhost:3000');
+    socket.on('connect', () => {
+      console.log(socket.nsp);
+
+      socket.emit('users', ['asd']);
+      socket.on('users', (data) => {
+        console.log('got users', data);
+      });
+
+      socket.emit('events', { whats: 'up moth' });
+      socket.on('events', (data) => {
+        console.log('reply from events:', data);
+      });
+    });
+
+    return () => {
+      socket.close();
+    };
+  });
 </script>
 
 <style lang="scss">
