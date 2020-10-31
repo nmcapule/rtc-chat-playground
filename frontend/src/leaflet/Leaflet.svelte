@@ -1,5 +1,6 @@
 <script lang="ts">
   import L from 'leaflet';
+  import io from 'socket.io-client';
   import { onMount } from 'svelte';
   import { GREETINGS } from './greetings';
 
@@ -10,6 +11,12 @@
   let map: L.Map;
 
   onMount(() => {
+    const socket = io('http://localhost:3000');
+    socket.emit('events', { whats: 'up moth' });
+    socket.on('events', (data) => {
+      console.log('reply from events:', data);
+    });
+
     const interval = setInterval(generatePopup, 100);
     return () => clearInterval(interval);
   });
