@@ -19,8 +19,8 @@ export interface Message {
   success?: boolean;
   message?: any;
 
-  user?: User;
-  users?: User[];
+  user?: Partial<User>;
+  users?: Partial<User>[];
 
   offer?: any;
   answer?: any;
@@ -28,14 +28,14 @@ export interface Message {
 }
 
 export class User {
-  constructor(public id: any, public username: string, public client: Socket) {}
+  constructor(public id: any, public username: string, public client?: Socket) {}
 
   send(message: Message) {
     this.client.send(message);
   }
 }
 
-@WebSocketGateway()
+@WebSocketGateway(null, { transports: ['websocket'] })
 export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDisconnect<Socket> {
   @WebSocketServer()
   server: Server;
@@ -43,9 +43,13 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
   wsidToUsername: { [key: string]: string } = {};
   users: { [key: string]: User } = {};
 
-  private sendToAll(accounts: { [key: string]: User }, type: string, sender: User) {
+  private sendToAll(accounts: { [key: string]: User }, type: string, sender?: User) {
     Object.values(accounts).forEach((account) => {
-      account.send({ type, user: sender });
+      console.log(account.username, sender?.username);
+      if (account?.username === sender?.username) {
+        return;
+      }
+      account.send({ type, user: { id: sender?.id, username: sender?.username } });
     });
   }
 
@@ -66,8 +70,12 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
       case 'login':
         this.onLogin(client, data);
         break;
+      case 'leave':
       case 'logout':
         this.onLogout(client);
+        break;
+      case 'users':
+        this.onUsers(client);
         break;
       case 'offer':
         this.onOffer(client, data);
@@ -96,6 +104,12 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
       return;
     }
 
+    // Check first if id is already logged in.
+    if (client.id in this.wsidToUsername) {
+      const prev = this.wsidToUsername[client.id];
+      this.onLogout(this.users[prev].client);
+    }
+
     const activeUsers = Object.values(this.users).map((user) => ({
       id: user.id,
       username: user.username,
@@ -119,6 +133,16 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
 
     delete this.users[username];
     delete this.wsidToUsername[client.id];
+  }
+
+  onUsers(client: Socket) {
+    client.send({
+      type: 'users',
+      users: Object.values(this.users).map((user) => ({
+        id: user.id,
+        username: user.username,
+      })),
+    });
   }
 
   onOffer(client: Socket, data: Message) {

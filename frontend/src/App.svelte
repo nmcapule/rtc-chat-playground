@@ -5,6 +5,7 @@
   import Playground from './playground/Entry.svelte';
   import Leaflet from './leaflet/Leaflet.svelte';
   import Socket from './socket/Socket.svelte';
+  import RtcChat from './rtc-chat/RtcChat.svelte';
 
   export let url = '';
 </script>
@@ -36,8 +37,12 @@
     <Link to="/placeholder">Placeholder</Link>
     <Link to="/socket">Socket</Link>
     <Link to="/leaflet">Leaflet</Link>
+    <Link to="/chat">Chat</Link>
   </nav>
   <div class="main-container">
+    <Route path="/chat">
+      <RtcChat />
+    </Route>
     <Route path="/leaflet">
       <Leaflet />
     </Route>
