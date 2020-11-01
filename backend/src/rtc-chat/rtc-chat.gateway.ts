@@ -189,6 +189,10 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
     offerer.send({
       type: 'answer',
       answer: data.answer,
+      user: {
+        id: offerer.id,
+        username: offerer.username,
+      },
     });
   }
 
@@ -205,6 +209,10 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
     recipient.send({
       type: 'candidate',
       candidate: data.candidate,
+      user: {
+        id: this.users[this.wsidToUsername[client.id]].id,
+        username: this.users[this.wsidToUsername[client.id]].username,
+      },
     });
   }
 }

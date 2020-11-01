@@ -8,7 +8,7 @@
   /** Helper function for logging. */
   function log(...messages: any[]) {
     const elem = document.createElement('code');
-    elem.textContent = `> ${messages.join(' ')}`;
+    elem.textContent = `${new Date().getTime()}> ${messages.join(' ')}`;
     document.querySelector('div#chat').appendChild(elem);
   }
 
@@ -51,7 +51,10 @@
   });
 
   const configuration: RTCConfiguration = {
-    iceServers: [{ urls: 'stun:stun.1.google.com:19302' }],
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+    ],
   };
 
   function onLogin(data) {
@@ -63,6 +66,7 @@
       if (!candidate || !partnerUser) {
         return;
       }
+      log('client: send candidate to', partnerUser.username);
 
       socket.send({
         type: 'candidate',
@@ -79,6 +83,9 @@
       channel.onmessage = onChannelMessageReceived;
       rtcChannel.set(channel);
     };
+    connection.addEventListener('icecandidateerror', (event) => {
+      log('ice candidate error:', JSON.stringify(event, ['errorCode', 'errorText']));
+    });
     rtcConnection.set(connection);
   }
 
@@ -90,33 +97,37 @@
     usersList.update((users) => users.filter((user) => user.username !== data.user.username));
   }
 
-  function onOffer(data) {
+  async function onOffer(data) {
+    log('server: got offer from', data.user.username, JSON.stringify(data.offer));
     partnerUserRef.set(data.user);
 
-    rtcConnection.subscribe(async (connection) => {
-      await connection.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const connection = get(rtcConnection);
+    await connection.setRemoteDescription(new RTCSessionDescription(data.offer));
 
-      const answer = await connection.createAnswer();
-      await connection.setLocalDescription(answer);
+    const answer = await connection.createAnswer();
+    await connection.setLocalDescription(answer);
+    rtcConnection.set(connection);
 
-      socket.send({
-        type: 'answer',
-        answer: connection.localDescription,
-        username: data.user.username,
-      });
-    })(); // cleanup.
+    socket.send({
+      type: 'answer',
+      answer: connection.localDescription,
+      username: data.user.username,
+    });
+    log('client: send answer to', data.user.username);
   }
 
-  function onAnswer(data) {
-    rtcConnection.subscribe((connection) => {
-      connection.setRemoteDescription(data.answer);
-    })(); // cleanup.
+  async function onAnswer(data) {
+    log('server: got answer', JSON.stringify(data.answer));
+    const connection = get(rtcConnection);
+    await connection.setRemoteDescription(data.answer);
+    rtcConnection.set(connection);
   }
 
-  function onCandidate(data) {
-    rtcConnection.subscribe((connection) => {
-      connection.addIceCandidate(new RTCIceCandidate(data.candidate));
-    })(); // cleanup.
+  async function onCandidate(data) {
+    log('server: got candidate from', data.user.username, ':', JSON.stringify(data.candidate));
+    const connection = get(rtcConnection);
+    await connection.addIceCandidate(new RTCIceCandidate(data.candidate));
+    rtcConnection.set(connection);
   }
 
   function onChannelMessageReceived({ data }) {
@@ -124,9 +135,9 @@
   }
 
   function sendChannelMessage(data) {
-    rtcChannel.subscribe((channel) => {
-      channel.send(data);
-    })(); // cleanup.
+    const channel = get(rtcChannel);
+    channel.send(data);
+    rtcChannel.set(channel);
   }
 
   async function connectToUser(username) {
@@ -136,8 +147,15 @@
       return;
     }
 
+    log('client: imma create a datachannel ok?');
     const connection = get(rtcConnection);
     const channel = connection.createDataChannel('messenger');
+    channel.onopen = (event) => {
+      log('channel: is open!');
+    };
+    channel.onclose = (event) => {
+      log('channel: is close!');
+    };
     channel.onerror = (error) => {
       log('error:', error);
     };
@@ -146,6 +164,7 @@
 
     const offer = await connection.createOffer();
     await connection.setLocalDescription(offer);
+    rtcConnection.set(connection);
 
     socket.send({
       type: 'offer',
@@ -231,6 +250,25 @@
       log('error:', error);
     }
   }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  (async () => {
+    await sleep(2000);
+    handleInputKeydown({
+      altKey: true,
+      code: 'Digit1',
+    });
+    await sleep(200);
+    handleInputKeydown({
+      code: 'Enter',
+      target: {
+        value: get(inputText),
+      },
+    });
+  })();
 </script>
 
 <style lang="scss">
