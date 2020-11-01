@@ -110,7 +110,7 @@
 
     socket.send({
       type: 'answer',
-      answer: connection.localDescription,
+      answer,
       username: data.user.username,
     });
     log('client: send answer to', data.user.username);
@@ -168,7 +168,7 @@
 
     socket.send({
       type: 'offer',
-      offer: connection.localDescription,
+      offer,
       username: username,
     });
   }
@@ -236,12 +236,15 @@
 
     // If all else is ok, we send the message to the server.
     const value: string = event.target.value;
-    try {
-      if (value.startsWith(':')) {
-        sendChannelMessage(value);
-        return;
-      }
+    if (!value.startsWith('{')) {
+      sendChannelMessage(value);
+      log('you:', value);
+      history.push(value);
+      inputText.set('');
+      return;
+    }
 
+    try {
       socket.send(JSON.parse(value));
       log(value);
       history.push(value);
