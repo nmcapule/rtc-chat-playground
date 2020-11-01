@@ -241,6 +241,7 @@
       log('you:', value);
       history.push(value);
       inputText.set('');
+      inputElem.value = '';
       return;
     }
 
