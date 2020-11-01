@@ -168,6 +168,10 @@ export class RtcChatGateway implements OnGatewayConnection<Socket>, OnGatewayDis
     recipient.send({
       type: 'offer',
       offer: data.offer,
+      user: {
+        id: offerer.id,
+        username: offerer.username,
+      },
       username: offerer.username,
     });
   }
